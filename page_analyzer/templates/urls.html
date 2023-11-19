@@ -14,10 +14,14 @@
       <tbody>
         {% for url in urls %}
           <tr>
-            <td>{{ url[0] }}</td>
-            <td><a href="{{ url_for('show_url', id=url[0]) }}">{{ url[1] }}</a></td>
-            <td></td>
-            <td></td>
+            <td>{{ url.id }}</td>
+            <td><a href="{{ url_for('show_url', id=url.id) }}">{{ url.name }}</a></td>
+            {% if url.created_at is none %}
+              <td></td>
+            {% else %}
+              <td>{{ url.created_at.date() }}</td>
+            {% endif %}
+            <td>{{ url.satus_code }}</td>
           </tr>
         {% endfor %}
       </tbody>
