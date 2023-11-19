@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 from validators.url import url as validator_url
 from urllib.parse import urlparse
 from datetime import datetime
+import requests
+from requests.exceptions import RequestException
 
 load_dotenv()
 
@@ -87,7 +89,6 @@ def show_url(id):
                    WHERE url_id = %s
                    ORDER BY created_at DESC;""", (id,))
     checks = cur.fetchall()
-    print(checks)
     cur.close()
     conn.close()
     return render_template('show.html',
@@ -99,10 +100,19 @@ def check(id):
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor()
     date = datetime.now()
-    cur.execute("INSERT INTO url_checks (url_id, created_at) VALUES (%s, %s);",
-                (id, date))
-    flash('Страница успешно проверена', 'success')
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect(url_for('show_url', id=id))
+    cur.execute("SELECT name FROM urls WHERE id = %s;", (id,))
+    name = cur.fetchone()[0]
+    try:
+        request = requests.get(name)
+        status = request.status_code
+        cur.execute("""INSERT INTO url_checks (url_id, created_at, status_code)
+                       VALUES (%s, %s, %s);""",
+                    (id, date, status))
+        flash('Страница успешно проверена', 'success')
+    except RequestException:
+        flash('Произошла ошибка при проверке', 'danger')
+    finally:
+        conn.commit()
+        cur.close()
+        conn.close()
+        return redirect(url_for('show_url', id=id))
