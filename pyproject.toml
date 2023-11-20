@@ -11,7 +11,7 @@ packages = [
 [tool.poetry.dependencies]
 python = { version = "^3.11.6", python = "^3.11.6" }
 flask = { version = "^3.0.0", python = "^3.11.6" }
-gunicorn = { version = "^21.2.0", python = "^3.11.6" }
+gunicorn = { version = "^20.1.0", python = "^3.11.6" }
 psycopg2-binary = { version = "^2.9.9", python = "^3.11.6" }
 python-dotenv = { version = "^1.0.0", python = "^3.11.6" }
 validators = { version = "^0.22.0", python = "^3.11.6" }
