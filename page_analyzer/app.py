@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 from datetime import datetime
 import requests
 from requests.exceptions import RequestException
+from bs4 import BeautifulSoup
 
 load_dotenv()
 
@@ -37,7 +38,6 @@ def urls():
                        ON urls.id = url_checks.url_id
                        ORDER BY urls.id DESC, created_at DESC""")
     all_urls = cur.fetchall()
-    print(all_urls)
     cur.close()
     conn.close()
     return render_template('urls.html', urls=all_urls)
@@ -104,10 +104,19 @@ def check(id):
     name = cur.fetchone()[0]
     try:
         request = requests.get(name)
+        soup = BeautifulSoup(request.text, 'html.parser')
+        title = soup.title.string if soup.title else ''
+        strings = soup.h1.strings
+        h1 = ''
+        for string in strings:
+            h1 += string
+        description = soup.find(attrs={'name': "description"})
+        description = description['content'] if description else ''
         status = request.status_code
-        cur.execute("""INSERT INTO url_checks (url_id, created_at, status_code)
-                       VALUES (%s, %s, %s);""",
-                    (id, date, status))
+        cur.execute("""INSERT INTO url_checks (url_id, created_at,
+                       status_code, title, h1, description)
+                       VALUES (%s, %s, %s, %s, %s, %s);""",
+                    (id, date, status, title, h1, description))
         flash('Страница успешно проверена', 'success')
     except RequestException:
         flash('Произошла ошибка при проверке', 'danger')
