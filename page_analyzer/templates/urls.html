@@ -21,7 +21,11 @@
             {% else %}
               <td>{{ url.created_at.date() }}</td>
             {% endif %}
-            <td>{{ url.satus_code }}</td>
+            {% if url.status_code is none %}
+              <td></td>
+            {% else %}
+              <td>{{ url.status_code }}</td>
+            {% endif %}
           </tr>
         {% endfor %}
       </tbody>

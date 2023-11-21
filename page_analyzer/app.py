@@ -38,6 +38,7 @@ def urls():
                        ON urls.id = url_checks.url_id
                        ORDER BY urls.id DESC, created_at DESC""")
     all_urls = cur.fetchall()
+    print(all_urls)
     cur.close()
     conn.close()
     return render_template('urls.html', urls=all_urls)
