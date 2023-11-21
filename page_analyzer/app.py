@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response
 from flask import redirect, url_for, flash, get_flashed_messages
 import psycopg2
 from psycopg2.errors import UniqueViolation
@@ -24,7 +24,7 @@ app.secret_key = SECRET_KEY
 
 @app.get('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html',)
 
 
 @app.get('/urls')
@@ -49,13 +49,16 @@ def urls_post():
     url = request.form.get('url')
     if len(url) < 1:
         messages = [('danger', 'URL обязателен')]
-        return render_template('index.html', url=url, messages=messages)
+        return make_response(render_template('index.html',
+                                             url=url, messages=messages), 422)
     if len(url) > 255:
         messages = [('danger', 'URL превышает 255 символов')]
-        return render_template('index.html', url=url, messages=messages)
+        return make_response(render_template('index.html',
+                                             url=url, messages=messages), 422)
     if not validator_url(url):
         messages = [('danger', 'Некорректный URL')]
-        return render_template('index.html', url=url, messages=messages)
+        return make_response(render_template('index.html',
+                                             url=url, messages=messages), 422)
     parse = urlparse(url)
     name = f'{parse.scheme}://{parse.netloc}'
     date = datetime.now()
