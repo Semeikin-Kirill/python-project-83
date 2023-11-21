@@ -122,10 +122,11 @@ def check(id):
                        VALUES (%s, %s, %s, %s, %s, %s);""",
                     (id, date, status, title, h1, description))
         flash('Страница успешно проверена', 'success')
-    except RequestException:
-        flash('Произошла ошибка при проверке', 'danger')
-    finally:
         conn.commit()
         cur.close()
         conn.close()
         return redirect(url_for('show_url', id=id))
+    except RequestException:
+        flash('Произошла ошибка при проверке', 'danger')
+        return redirect(url_for('show_url', id=id), 400)
+
