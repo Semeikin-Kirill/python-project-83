@@ -128,4 +128,4 @@ def check(id):
         return redirect(url_for('show_url', id=id))
     except RequestException:
         flash('Произошла ошибка при проверке', 'danger')
-        return redirect(url_for('show_url', id=id), 400)
+        return redirect(url_for('show_url', id=id))
