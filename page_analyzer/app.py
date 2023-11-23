@@ -108,24 +108,25 @@ def check(id):
     name = cur.fetchone()[0]
     try:
         request = requests.get(name)
-        soup = BeautifulSoup(request.text, 'html.parser')
-        title = soup.title.string if soup.title else ''
-        strings = soup.h1.strings
-        h1 = ''
-        for string in strings:
-            h1 += string
-        description = soup.find(attrs={'name': "description"})
-        description = description['content'] if description else ''
-        status = request.status_code
-        cur.execute("""INSERT INTO url_checks (url_id, created_at,
-                       status_code, title, h1, description)
-                       VALUES (%s, %s, %s, %s, %s, %s);""",
-                    (id, date, status, title, h1, description))
-        flash('Страница успешно проверена', 'success')
-        conn.commit()
-        cur.close()
-        conn.close()
-        return redirect(url_for('show_url', id=id))
+        request.raise_for_status()
     except RequestException:
         flash('Произошла ошибка при проверке', 'danger')
         return redirect(url_for('show_url', id=id))
+    soup = BeautifulSoup(request.text, 'html.parser')
+    title = soup.title.string if soup.title else ''
+    strings = soup.h1.strings
+    h1 = ''
+    for string in strings:
+        h1 += string
+    description = soup.find(attrs={'name': "description"})
+    description = description['content'] if description else ''
+    status = request.status_code
+    cur.execute("""INSERT INTO url_checks (url_id, created_at,
+                    status_code, title, h1, description)
+                    VALUES (%s, %s, %s, %s, %s, %s);""",
+                (id, date, status, title, h1, description))
+    flash('Страница успешно проверена', 'success')
+    conn.commit()
+    cur.close()
+    conn.close()
+    return redirect(url_for('show_url', id=id))
